@@ -1,0 +1,10 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "server",
+  "dolt_server_host": "doltsrv.lan",
+  "dolt_server_port": 3307,
+  "dolt_server_user": "root",
+  "dolt_database": "nano_c6_noctua_pwm",
+  "project_id": "b70d9372-0162-4c55-b766-ef3492ce0495"
+}
