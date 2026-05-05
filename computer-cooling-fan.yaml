@@ -1,0 +1,91 @@
+substitutions:
+  device_name: computer-cooling-fan
+  friendly_name: Computer Cooling Fan
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+  on_boot:
+    priority: -100
+    then:
+      - fan.turn_on:
+          id: case_fan
+          speed: 3
+
+esp32:
+  variant: esp32c6
+  flash_size: 4MB
+  framework:
+    type: esp-idf
+
+logger:
+
+api:
+  id: native_api
+  reboot_timeout: 0s
+  encryption:
+    key: !env_var API_ENCRYPTION_KEY
+  on_client_disconnected:
+    then:
+      - delay: 10s
+      - if:
+          condition:
+            lambda: |-
+              return !id(native_api).is_connected_with_state_subscription();
+          then:
+            - fan.turn_on:
+                id: case_fan
+                speed: 3
+
+ota:
+  - platform: esphome
+    password: !env_var OTA_PASSWORD
+
+wifi:
+  ssid: !env_var WIFI_SSID
+  password: !env_var WIFI_PASSWORD
+  power_save_mode: none
+  ap:
+    ssid: !env_var WIFI_AP_SSID
+    password: !env_var WIFI_AP_PASSWORD
+
+captive_portal:
+
+web_server:
+  port: 80
+  version: 3
+  auth:
+    username: !env_var FAN_HTTP_USER
+    password: !env_var FAN_HTTP_PASSWORD
+
+output:
+  - platform: ledc
+    id: noctua_pwm
+    pin: GPIO2
+    frequency: 25000 Hz
+    inverted: false
+
+fan:
+  - platform: speed
+    id: case_fan
+    name: "case_fan"
+    output: noctua_pwm
+    speed_count: 5
+
+sensor:
+  - platform: pulse_counter
+    id: fan_rpm
+    name: "case_fan_rpm"
+    pin:
+      number: GPIO1
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    unit_of_measurement: "RPM"
+    update_interval: 5s
+    filters:
+      - multiply: 0.5
+    count_mode:
+      rising_edge: INCREMENT
+      falling_edge: DISABLE

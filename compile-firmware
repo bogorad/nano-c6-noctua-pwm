@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+usage() {
+  printf '%s\n' 'usage: compile-firmware [esphome compile args...]' >&2
+}
+
+if [ "$#" -gt 0 ]; then
+  case "$1" in
+    -h|--help)
+      usage
+      exit 0
+      ;;
+  esac
+fi
+
+env_exports="$(
+  sops -d secrets.yaml | yq eval -r '
+    "export WIFI_SSID=" + (.wifi.ssid | @sh),
+    "export WIFI_PASSWORD=" + (.wifi.password | @sh),
+    "export WIFI_AP_SSID=" + (.wifi.ap_ssid | @sh),
+    "export WIFI_AP_PASSWORD=" + (.wifi.ap_password | @sh),
+    "export API_ENCRYPTION_KEY=" + (.api_encryption_key | @sh),
+    "export OTA_PASSWORD=" + (.ota_password | @sh),
+    "export FAN_HTTP_USER=" + (.fan_http.user | @sh),
+    "export FAN_HTTP_PASSWORD=" + (.fan_http.password | @sh)
+  ' -
+)"
+env_status="$?"
+
+if [ "$env_status" -ne 0 ]; then
+  exit "$env_status"
+fi
+
+eval "$env_exports"
+
+api_key_bytes="$(printf '%s' "$API_ENCRYPTION_KEY" | base64 -d 2>/dev/null | wc -c | tr -d ' ')"
+api_key_status="$?"
+
+if [ "$api_key_status" -ne 0 ] || [ "$api_key_bytes" != "32" ]; then
+  printf '%s\n' 'api_encryption_key must be valid base64 for exactly 32 bytes' >&2
+  exit 2
+fi
+
+exec nix develop . --command esphome compile computer-cooling-fan.yaml "$@"

@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+usage() {
+  printf '%s\n' 'usage: set-case-fan 0|20|40|60|80|100' >&2
+}
+
+if [ "$#" -ne 1 ]; then
+  usage
+  exit 2
+fi
+
+host="${FAN_HOST:-computer-cooling-fan.local}"
+user="${FAN_USER:-fan}"
+pass="${FAN_PASS:-}"
+speed="$1"
+
+if [ -z "$pass" ]; then
+  printf '%s\n' 'set FAN_PASS' >&2
+  exit 2
+fi
+
+case "$speed" in
+  0)
+    path="/fan/case_fan/turn_off"
+    ;;
+  20)
+    path="/fan/case_fan/turn_on?speed_level=1"
+    ;;
+  40)
+    path="/fan/case_fan/turn_on?speed_level=2"
+    ;;
+  60)
+    path="/fan/case_fan/turn_on?speed_level=3"
+    ;;
+  80)
+    path="/fan/case_fan/turn_on?speed_level=4"
+    ;;
+  100)
+    path="/fan/case_fan/turn_on?speed_level=5"
+    ;;
+  *)
+    printf 'Invalid speed: %s\n' "$speed" >&2
+    printf '%s\n' 'Allowed: 0 20 40 60 80 100' >&2
+    exit 2
+    ;;
+esac
+
+curl --fail --silent --show-error \
+  --request POST \
+  --user "$user:$pass" \
+  "http://${host}${path}"
+curl_status="$?"
+
+if [ "$curl_status" -ne 0 ]; then
+  exit "$curl_status"
+fi
+
+printf 'fan speed set to %s%%\n' "$speed"
