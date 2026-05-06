@@ -10,7 +10,7 @@ esphome:
     then:
       - fan.turn_on:
           id: case_fan
-          speed: 3
+          speed: 2
 
 esp32:
   variant: esp32c6

@@ -44,7 +44,7 @@ Home Assistant uses the encrypted ESPHome native API. Scripts use the ESPHome HT
 
 UDP is not used.
 
-The fan boots to 60%. If Home Assistant or any other state-subscribing native API client disconnects and no state-subscribing native API client remains after the delay, the fan falls back to 60%.
+The fan boots to 40%. If Home Assistant or any other state-subscribing native API client disconnects and no state-subscribing native API client remains after the delay, the fan falls back to 60%.
 
 If the configured Wi-Fi network is unavailable, ESPHome enables its fallback AP using `wifi.ap_ssid` and `wifi.ap_password`.
 
@@ -61,7 +61,7 @@ If the configured Wi-Fi network is unavailable, ESPHome enables its fallback AP 
 | 80% | 4 | 80% |
 | 100% | 5 | 100% |
 
-Boot speed is 60%, which is `speed: 3`. HA-loss fallback speed is also 60%, which is `speed: 3`.
+Boot speed is 40%, which is `speed: 2`. HA-loss fallback speed is 60%, which is `speed: 3`.
 
 ## HTTP Usage
 
@@ -95,8 +95,8 @@ Without contacting the device, check the repository artifacts:
 ```bash
 bash -n ./set-case-fan
 bash -n ./compile-firmware
-rg 'speed: 3|speed_count: 5|GPIO2|25000 Hz|GPIO1' computer-cooling-fan.yaml
-rg -i 'POST /fan/case_fan|boot.*60|fallback.*60|native API|UDP' README.md
+rg 'speed: 2|speed: 3|speed_count: 5|GPIO2|25000 Hz|GPIO1' computer-cooling-fan.yaml
+rg -i 'POST /fan/case_fan|boot.*40|fallback.*60|native API|UDP' README.md
 ```
 
 After the device has already been flashed and is on the trusted LAN, a live state read is:
