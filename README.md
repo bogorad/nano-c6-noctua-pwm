@@ -6,12 +6,12 @@ This repository configures an M5Stack NanoC6 to control one Noctua NF-A8 5V PWM 
 
 Use the NanoC6 Grove port for one fan:
 
-| NanoC6 Grove | NanoC6 signal | Noctua wire | Purpose |
-| --- | --- | --- | --- |
-| Black | GND | Black | Shared ground |
-| Red | 5 V | Yellow | Fan power |
-| Yellow | GPIO2 / G2 | Blue | PWM control |
-| White | GPIO1 / G1 | Green | Optional RPM feedback |
+|  NanoC6 signal | Noctua wire | Purpose |
+|  --- | --- | --- |
+|  GND | Black | Shared ground |
+|  5 V | Yellow | Fan power |
+|  GPIO2 / G2 | Blue | PWM control |
+|  GPIO1 / G1 | Green | Optional RPM feedback |
 
 The RPM wire is optional. If connected, use NanoC6 GPIO1 / G1 with the internal pull-up configured in `computer-cooling-fan.yaml`.
 
